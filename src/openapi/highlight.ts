@@ -4,13 +4,14 @@
  * font (leading indentation preserved via `whitespace-pre`).
  */
 
+// Light-theme syntax colors, tuned for a white code panel in the A4 PDF.
 export const codeColor = {
-  key: "text-[#7dd3fc]", // sky
-  string: "text-[#a7f3d0]", // emerald
-  number: "text-[#fca5a5]", // red
-  keyword: "text-[#c4b5fd]", // violet (true/false/null)
-  punct: "text-[#64748b]", // slate
-  plain: "text-[#e5e7eb]",
+  key: "text-[#0369a1]", // sky-700
+  string: "text-[#047857]", // emerald-700
+  number: "text-[#be123c]", // rose-700
+  keyword: "text-[#6d28d9]", // violet-700 (true/false/null)
+  punct: "text-[#64748b]", // slate-500
+  plain: "text-[#1e293b]", // slate-800
 } as const;
 
 export interface Span {

@@ -14,9 +14,9 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "pdf-lib": "^1.17.1",
     "react": "^19.2.8",
     "takumi-js": "^2.6.2",
+    "takumi-pdf": "^0.6.3",
     "yaml": "^2.9.0"
   },
   "devDependencies": {

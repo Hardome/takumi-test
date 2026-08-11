@@ -10,8 +10,8 @@ Tailwind utilities via the `tw` prop.
 npm install
 npm run generate   # paginated data tables      → out/page-*.png
 npm run examples   # gradient / grid / vector / motion demos → out/{hero,bento,ticket,spinner}.*
-npm run docs       # render openapi.yaml to API-reference pages → out/api/*.png
-npm run report     # openapi.yaml → light A4 report pages + PDF → out/report/*.png
+npm run docs       # openapi.yaml → API-reference vector PDF → out/api/api.pdf
+npm run report     # openapi.yaml → light A4 report vector PDF → out/report/*.pdf
 npm run all        # generate + examples
 ```
 
@@ -19,23 +19,21 @@ Everything lands in `./out` with an auto-built `out/index.html` gallery.
 
 ## Output size
 
-Dimensions live in [`src/config.ts`](src/config.ts) and can be overridden per run:
+`docs` and `report` emit **physical A4 PDFs** (595×842pt / 210×297mm): content is
+authored to the A4 content width and [takumi-pdf](https://www.npmjs.com/package/takumi-pdf)
+flows it across as many A4 sheets as it needs, with a repeating page-number
+footer. Sizes live in [`src/config.ts`](src/config.ts) and can be overridden per run:
 
 ```bash
-OG_WIDTH=1600 OG_HEIGHT=840 npm run all   # larger canvas
-DOCS_WIDTH=1600 npm run docs              # wider API-reference pages
-REPORT_PAGE=a4 npm run report             # fixed A4 paged report
+OG_WIDTH=1600 OG_HEIGHT=840 npm run all   # larger image canvas
+PAGE_MARGIN_X=32 npm run report           # tighter left/right page margins
 ```
 
-| Env var               | Default | Affects                                  |
-| --------------------- | ------- | ---------------------------------------- |
-| `OG_WIDTH` / `OG_HEIGHT` | 1200 / 630 | tables + examples canvas             |
-| `DOCS_WIDTH`          | 1240    | API-reference page width                 |
-| `DOCS_COVER_HEIGHT`   | 940     | API-reference cover height               |
-| `REPORT_WIDTH`        | 1240    | report page width                        |
-| `REPORT_TITLE_HEIGHT` | 940     | report title-page height                 |
-| `REPORT_PAGE`         | —       | `a4`/`letter` → fixed paged mode         |
-| `REPORT_PAGE_HEIGHT`  | —       | explicit fixed page height (px)          |
+| Env var                                  | Default    | Affects                              |
+| ---------------------------------------- | ---------- | ------------------------------------ |
+| `OG_WIDTH` / `OG_HEIGHT`                 | 1200 / 630 | tables + examples image canvas       |
+| `PAGE_MARGIN_X`                          | 44         | A4 left/right margin (px @96dpi)     |
+| `PAGE_MARGIN_TOP` / `PAGE_MARGIN_BOTTOM` | 56 / 52    | A4 top/bottom margin (header/footer) |
 
 `npm run report -- <spec.yaml>` renders any OpenAPI file, namespacing output
 under `out/report/<name>/`.
