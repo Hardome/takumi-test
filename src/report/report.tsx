@@ -35,7 +35,7 @@ function cellWidth(c: { w?: number }): string {
 function ParamTable({ rows }: { rows: ParamRow[] }) {
   return (
     <div tw={`flex flex-col border-t border-l ${GRID} mb-5`}>
-      <div tw="flex bg-[#f1f5f9]">
+      <div tw="flex bg-[#f1f5f9]" style={{ breakInside: "avoid" }}>
         {paramCols.map((c) => (
           <div key={c.key} tw={`flex ${cellWidth(c)} border-r border-b ${GRID} px-2 py-1.5 text-[10px] font-semibold text-[#334155]`}>
             {c.label}
@@ -43,7 +43,7 @@ function ParamTable({ rows }: { rows: ParamRow[] }) {
         ))}
       </div>
       {rows.map((row, i) => (
-        <div key={i} tw="flex">
+        <div key={i} tw="flex" style={{ breakInside: "avoid" }}>
           {paramCols.map((c) => (
             <div
               key={c.key}
@@ -61,12 +61,12 @@ function ParamTable({ rows }: { rows: ParamRow[] }) {
 function CodesTable({ codes }: { codes: [string, string][] }) {
   return (
     <div tw={`flex flex-col border-t border-l ${GRID} mb-5`}>
-      <div tw="flex bg-[#f1f5f9]">
+      <div tw="flex bg-[#f1f5f9]" style={{ breakInside: "avoid" }}>
         <div tw={`flex w-[96px] border-r border-b ${GRID} px-2 py-1.5 text-[10px] font-semibold text-[#334155]`}>Код</div>
         <div tw={`flex flex-1 border-r border-b ${GRID} px-2 py-1.5 text-[10px] font-semibold text-[#334155]`}>Описание</div>
       </div>
       {codes.map(([code, text], i) => (
-        <div key={i} tw="flex">
+        <div key={i} tw="flex" style={{ breakInside: "avoid" }}>
           <div tw={`flex w-[96px] border-r border-b ${GRID} px-2 py-1.5 text-[11px] ${MONO} text-[#0f172a]`}>{code}</div>
           <div tw={`flex flex-1 border-r border-b ${GRID} px-2 py-1.5 text-[11px] text-[#334155]`}>{text}</div>
         </div>
@@ -78,7 +78,7 @@ function CodesTable({ codes }: { codes: [string, string][] }) {
 function Pre({ value }: { value: unknown }) {
   const lines = value === undefined ? ["—"] : prettyLines(value);
   return (
-    <div tw="flex flex-col rounded border border-[#e2e8f0] bg-[#f8fafc] px-2.5 py-2">
+    <div tw="flex flex-col rounded border border-[#e2e8f0] bg-[#f8fafc] px-2.5 py-2" style={{ breakInside: "avoid" }}>
       {lines.map((l, i) => (
         <div key={i} tw={`flex ${MONO} text-[11px] leading-[17px] whitespace-pre text-[#0f172a]`}>{l || " "}</div>
       ))}
@@ -88,7 +88,7 @@ function Pre({ value }: { value: unknown }) {
 
 function IntroTable({ service }: { service: Service }) {
   const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div tw="flex">
+    <div tw="flex" style={{ breakInside: "avoid" }}>
       <div tw={`flex w-[150px] border-r border-b ${GRID} px-2.5 py-1.5 bg-[#f8fafc] text-[12px] font-semibold text-[#334155]`}>{label}</div>
       <div tw={`flex flex-1 border-r border-b ${GRID} px-2.5 py-1.5 text-[12px] text-[#334155]`}>{children}</div>
     </div>
@@ -122,11 +122,7 @@ function H4({ children }: { children: React.ReactNode }) {
 export function ServicePage({ service }: { service: Service }) {
   return (
     <div tw="flex flex-col w-full font-[Inter] text-[#0f172a]">
-      <div tw={`flex items-center justify-between mb-3 pb-2 border-b ${GRID}`}>
-        <div tw={`flex ${MONO} text-[14px] text-[#475569]`}>{service.serviceName}</div>
-        <div tw="flex text-[12px] text-[#94a3b8]">Отчёт по API</div>
-      </div>
-
+      <div tw={`flex ${MONO} text-[14px] text-[#475569] mb-1`}>{service.serviceName}</div>
       <H2>Описание API</H2>
       <IntroTable service={service} />
 
@@ -174,13 +170,13 @@ export function TitlePage({ model }: { model: ReportModel }) {
 
       <div tw="flex text-[12px] font-bold tracking-[1.5px] text-[#64748b] mt-7 mb-2">СОДЕРЖАНИЕ</div>
       <div tw={`flex flex-col border-t border-l ${GRID}`}>
-        <div tw="flex bg-[#f1f5f9]">
+        <div tw="flex bg-[#f1f5f9]" style={{ breakInside: "avoid" }}>
           <div tw={`flex w-[56px] border-r border-b ${GRID} px-2.5 py-1.5 text-[11px] font-semibold text-[#334155]`}>№</div>
           <div tw={`flex w-[220px] border-r border-b ${GRID} px-2.5 py-1.5 text-[11px] font-semibold text-[#334155]`}>Сервис</div>
           <div tw={`flex flex-1 border-r border-b ${GRID} px-2.5 py-1.5 text-[11px] font-semibold text-[#334155]`}>Наименование</div>
         </div>
         {model.services.map((s, i) => (
-          <div key={i} tw="flex">
+          <div key={i} tw="flex" style={{ breakInside: "avoid" }}>
             <div tw={`flex w-[56px] border-r border-b ${GRID} px-2.5 py-1.5 text-[12px] text-[#334155]`}>{i + 1}</div>
             <div tw={`flex w-[220px] border-r border-b ${GRID} px-2.5 py-1.5 text-[11px] break-all ${MONO} text-[#0f172a]`}>{s.serviceName}</div>
             <div tw={`flex flex-1 border-r border-b ${GRID} px-2.5 py-1.5 text-[12px] text-[#334155]`}>{s.summary || "—"}</div>

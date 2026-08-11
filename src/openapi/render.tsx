@@ -47,7 +47,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 function CodeBlock({ label, value }: { label: string; value: unknown }) {
   const lines = prettyLines(value);
   return (
-    <div tw={card}>
+    <div tw={card} style={{ breakInside: "avoid" }}>
       <div tw={`flex px-3 py-1.5 bg-[#f3f4f6] border-b ${GRID} text-[10px] font-semibold tracking-[0.5px] text-[#6b7280]`}>{label}</div>
       <div tw="flex flex-col bg-[#f8fafc] px-4 py-3">
         {lines.map((line, i) => (
@@ -67,7 +67,7 @@ function CodeBlock({ label, value }: { label: string; value: unknown }) {
 function ParamTable({ params }: { params: Param[] }) {
   return (
     <div tw={`flex flex-col border-t border-l ${GRID}`}>
-      <div tw="flex bg-[#f5f5f5] text-[10px] font-semibold tracking-[0.5px] text-[#6b7280]">
+      <div tw="flex bg-[#f5f5f5] text-[10px] font-semibold tracking-[0.5px] text-[#6b7280]" style={{ breakInside: "avoid" }}>
         <div tw={`flex w-[150px] border-r border-b ${GRID} px-2.5 py-1.5`}>NAME</div>
         <div tw={`flex w-[52px] border-r border-b ${GRID} px-2.5 py-1.5`}>IN</div>
         <div tw={`flex w-[120px] border-r border-b ${GRID} px-2.5 py-1.5`}>TYPE</div>
@@ -75,7 +75,7 @@ function ParamTable({ params }: { params: Param[] }) {
         <div tw={`flex flex-1 border-r border-b ${GRID} px-2.5 py-1.5`}>DESCRIPTION</div>
       </div>
       {params.map((p, i) => (
-        <div key={i} tw="flex items-stretch">
+        <div key={i} tw="flex items-stretch" style={{ breakInside: "avoid" }}>
           <div tw={`flex w-[150px] border-r border-b ${GRID} px-2.5 py-1.5 break-all ${MONO} text-[12px] text-[#0f172a]`}>{p.name}</div>
           <div tw={`flex w-[52px] border-r border-b ${GRID} px-2.5 py-1.5 text-[12px] text-[#6b7280]`}>{p.in}</div>
           <div tw={`flex w-[120px] border-r border-b ${GRID} px-2.5 py-1.5 break-all ${MONO} text-[11px] text-[#4338ca]`}>{p.type}</div>
@@ -91,7 +91,7 @@ function ParamTable({ params }: { params: Param[] }) {
 
 function ResponseRow({ resp }: { resp: ResponseModel }) {
   return (
-    <div tw="flex flex-col mb-3">
+    <div tw="flex flex-col mb-3" style={{ breakInside: "avoid" }}>
       <div tw="flex items-center gap-2 mb-1.5">
         <div tw={`flex items-center justify-center rounded px-2 py-0.5 text-[13px] font-bold ${MONO} ${statusStyle(resp.status)}`}>{resp.status}</div>
         <div tw="flex text-[13px] text-[#334155]">{resp.description}</div>
@@ -103,7 +103,7 @@ function ResponseRow({ resp }: { resp: ResponseModel }) {
 
 /* --------------------------------------------------------------- full pages */
 
-export function EndpointPage({ op, index, total }: { op: Operation; index: number; total: number }) {
+export function EndpointPage({ op }: { op: Operation }) {
   return (
     <div tw="flex flex-col w-full font-[Inter] text-[#111827]">
       <div tw={`flex items-center justify-between border-b ${GRID} pb-3`}>
@@ -121,7 +121,8 @@ export function EndpointPage({ op, index, total }: { op: Operation; index: numbe
         </div>
       </div>
 
-      {op.summary && <div tw="flex text-[19px] font-bold text-[#111827] mt-3">{op.summary}</div>}
+      <div tw={`flex ${MONO} text-[10px] text-[#9ca3af] mt-1.5`}>operationId: {op.operationId}</div>
+      {op.summary && <div tw="flex text-[19px] font-bold text-[#111827] mt-2">{op.summary}</div>}
       {op.description && <div tw="flex text-[13px] leading-[20px] text-[#4b5563] mt-1.5">{op.description}</div>}
 
       {op.params.length > 0 && (
@@ -143,11 +144,6 @@ export function EndpointPage({ op, index, total }: { op: Operation; index: numbe
         {op.responses.map((r, i) => (
           <ResponseRow key={i} resp={r} />
         ))}
-      </div>
-
-      <div tw={`flex items-center justify-between mt-3 pt-2.5 border-t ${GRID} text-[10px] text-[#9ca3af]`}>
-        <div tw={`flex ${MONO}`}>operationId: {op.operationId}</div>
-        <div tw="flex">{index} / {total}</div>
       </div>
     </div>
   );

@@ -25,11 +25,21 @@ async function loadFonts() {
   }
 }
 
-/** Repeating footer band: doc title on the left, page counter on the right. */
+/** Repeating running header: product name + API kind, with a hairline rule. */
+function Header({ spec }: { spec: Spec }) {
+  return (
+    <div tw="flex w-full items-end justify-between font-[Inter] text-[9px] tracking-[1px] uppercase text-[#94a3b8] border-b border-[#e5e7eb] pb-2">
+      <div tw="flex">{spec.title}</div>
+      <div tw="flex">API Reference · v{spec.version}</div>
+    </div>
+  );
+}
+
+/** Repeating footer band: source note on the left, page counter on the right. */
 function Footer({ spec }: { spec: Spec }) {
   return (
-    <div tw="flex w-full items-center justify-between font-[Inter] text-[10px] text-[#9ca3af]">
-      <div tw="flex">{spec.title} · v{spec.version} · OpenAPI 3.1</div>
+    <div tw="flex w-full items-center justify-between font-[Inter] text-[10px] text-[#9ca3af] border-t border-[#e5e7eb] pt-2.5">
+      <div tw="flex">{spec.title} · OpenAPI 3.1</div>
       <div tw="flex">
         Page <span className="pageNumber" />&nbsp;/&nbsp;<span className="totalPages" />
       </div>
@@ -70,7 +80,7 @@ async function main() {
       <CoverPage spec={spec} tagCounts={tagCounts} />
       {spec.operations.map((op, i) => (
         <div key={i} tw="flex w-full" style={{ breakBefore: "page" }}>
-          <EndpointPage op={op} index={i + 1} total={total} />
+          <EndpointPage op={op} />
         </div>
       ))}
     </div>
@@ -79,6 +89,7 @@ async function main() {
   const pdf = await renderPdf(doc, {
     size: "a4",
     margin: pageMargin,
+    header: <Header spec={spec} />,
     footer: <Footer spec={spec} />,
     fonts: [...(fonts ?? []), ...emoji],
   });

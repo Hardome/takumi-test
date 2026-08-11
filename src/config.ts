@@ -25,10 +25,10 @@ export const A4 = { width: 794, height: 1123 } as const;
  * the repeating header/footer bands; `left`/`right` set the text measure.
  */
 export const pageMargin = {
-  top: num(process.env.PAGE_MARGIN_TOP, 56),
-  right: num(process.env.PAGE_MARGIN_X, 44),
-  bottom: num(process.env.PAGE_MARGIN_BOTTOM, 52),
-  left: num(process.env.PAGE_MARGIN_X, 44),
+  top: num(process.env.PAGE_MARGIN_TOP, 68),
+  right: num(process.env.PAGE_MARGIN_X, 48),
+  bottom: num(process.env.PAGE_MARGIN_BOTTOM, 64),
+  left: num(process.env.PAGE_MARGIN_X, 48),
 } as const;
 
 /** Usable content width inside the margins — what the page components fill. */

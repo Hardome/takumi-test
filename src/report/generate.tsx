@@ -31,10 +31,20 @@ async function loadFonts() {
   }
 }
 
-/** Repeating footer band: doc title on the left, page counter on the right. */
+/** Repeating running header: product name + report kind, with a hairline rule. */
+function Header({ model }: { model: ReportModel }) {
+  return (
+    <div tw="flex w-full items-end justify-between font-[Inter] text-[9px] tracking-[1px] uppercase text-[#94a3b8] border-b border-[#e2e8f0] pb-2">
+      <div tw="flex">{model.title}</div>
+      <div tw="flex">Отчёт по API · v{model.version}</div>
+    </div>
+  );
+}
+
+/** Repeating footer band: source note on the left, page counter on the right. */
 function Footer({ model }: { model: ReportModel }) {
   return (
-    <div tw="flex w-full items-center justify-between font-[Inter] text-[10px] text-[#94a3b8]">
+    <div tw="flex w-full items-center justify-between font-[Inter] text-[10px] text-[#94a3b8] border-t border-[#e2e8f0] pt-2.5">
       <div tw="flex">{model.title} · Отчёт по API</div>
       <div tw="flex">
         Страница <span className="pageNumber" />&nbsp;из&nbsp;<span className="totalPages" />
@@ -79,6 +89,7 @@ async function main() {
   const pdf = await renderPdf(doc, {
     size: "a4",
     margin: pageMargin,
+    header: <Header model={model} />,
     footer: <Footer model={model} />,
     fonts: [...(fonts ?? []), ...emoji],
   });
