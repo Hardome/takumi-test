@@ -1,0 +1,705 @@
+openapi: 3.1.0
+info:
+  title: Aperture Commerce API
+  version: 2.4.0
+  summary: Products, orders, refunds and customers for the Aperture storefront.
+  description: >
+    A REST API for the Aperture storefront. All monetary amounts are integers in
+    the smallest currency unit (e.g. cents). Requests and responses are JSON.
+    Authenticate with a bearer access token obtained from `POST /auth/token`.
+  contact:
+    name: Aperture Platform
+    email: api@aperture.example
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://api.aperture.example/v2
+    description: Production
+  - url: https://sandbox.aperture.example/v2
+    description: Sandbox (test data, no real charges)
+
+tags:
+  - name: Auth
+    description: Obtain and refresh access tokens.
+  - name: Products
+    description: Catalog items available for purchase.
+  - name: Orders
+    description: Customer orders and their line items.
+  - name: Refunds
+    description: Full or partial refunds against an order.
+  - name: Customers
+    description: Customer records and addresses.
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/token:
+    post:
+      tags: [Auth]
+      operationId: createToken
+      summary: Exchange client credentials for an access token
+      description: >
+        Client-credentials grant. Returns a short-lived bearer token used for all
+        other endpoints. Tokens expire after `expires_in` seconds.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+            example:
+              grant_type: client_credentials
+              client_id: ak_live_9f2c8b1e
+              client_secret: sk_live_5d7a1c0e4b93f6a2
+              scope: products:write orders:write
+      responses:
+        '200':
+          description: A new access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+              example:
+                access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhY2NfMTIzIn0
+                token_type: Bearer
+                expires_in: 3600
+                scope: products:write orders:write
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /products:
+    get:
+      tags: [Products]
+      operationId: listProducts
+      summary: List products
+      description: Paginated catalog listing with filtering, search and sorting.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - name: status
+          in: query
+          description: Filter by lifecycle status.
+          schema:
+            type: string
+            enum: [active, draft, archived]
+        - name: q
+          in: query
+          description: Full-text search across name and SKU.
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Sort field, prefix with `-` for descending.
+          schema:
+            type: string
+            default: -created_at
+            enum: [created_at, -created_at, price, -price, name, -name]
+      responses:
+        '200':
+          description: A page of products.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Product'
+              example:
+                object: list
+                data:
+                  - id: prod_8Kd2mQ
+                    object: product
+                    name: Aperture Field Notebook
+                    sku: NB-FIELD-01
+                    status: active
+                    price: { amount: 1899, currency: USD }
+                    inventory: 240
+                    created_at: '2026-05-14T09:31:00Z'
+                page: 1
+                limit: 20
+                total: 137
+                has_more: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      tags: [Products]
+      operationId: createProduct
+      summary: Create a product
+      description: Adds a new catalog item. `sku` must be unique per account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreate'
+            example:
+              name: Aperture Travel Mug
+              sku: MUG-TRV-02
+              status: active
+              price: { amount: 2499, currency: USD }
+              inventory: 500
+              tags: [drinkware, travel]
+      responses:
+        '201':
+          description: The created product.
+          headers:
+            Location:
+              description: URL of the new product.
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              example:
+                id: prod_Qz7Lp0
+                object: product
+                name: Aperture Travel Mug
+                sku: MUG-TRV-02
+                status: active
+                price: { amount: 2499, currency: USD }
+                inventory: 500
+                tags: [drinkware, travel]
+                created_at: '2026-08-10T12:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /products/{productId}:
+    parameters:
+      - $ref: '#/components/parameters/ProductId'
+    get:
+      tags: [Products]
+      operationId: getProduct
+      summary: Retrieve a product
+      responses:
+        '200':
+          description: The requested product.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              example:
+                id: prod_8Kd2mQ
+                object: product
+                name: Aperture Field Notebook
+                sku: NB-FIELD-01
+                status: active
+                price: { amount: 1899, currency: USD }
+                inventory: 240
+                tags: [stationery]
+                created_at: '2026-05-14T09:31:00Z'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Products]
+      operationId: updateProduct
+      summary: Update a product
+      description: Partial update. Only supplied fields are changed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdate'
+            example:
+              price: { amount: 1699, currency: USD }
+              status: active
+      responses:
+        '200':
+          description: The updated product.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              example:
+                id: prod_8Kd2mQ
+                object: product
+                name: Aperture Field Notebook
+                sku: NB-FIELD-01
+                status: active
+                price: { amount: 1699, currency: USD }
+                inventory: 240
+                tags: [stationery]
+                created_at: '2026-05-14T09:31:00Z'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+    delete:
+      tags: [Products]
+      operationId: deleteProduct
+      summary: Archive a product
+      description: Soft-deletes the product by moving it to `archived`.
+      responses:
+        '204':
+          description: Archived. No content.
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /orders:
+    get:
+      tags: [Orders]
+      operationId: listOrders
+      summary: List orders
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, paid, fulfilled, cancelled, refunded]
+        - name: customer_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: A page of orders.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Order'
+              example:
+                object: list
+                data:
+                  - id: ord_3F9aX2
+                    object: order
+                    status: paid
+                    customer_id: cus_71Ba9
+                    items:
+                      - product_id: prod_8Kd2mQ
+                        quantity: 2
+                        unit_price: { amount: 1899, currency: USD }
+                    total: { amount: 3798, currency: USD }
+                    created_at: '2026-08-01T18:22:10Z'
+                page: 1
+                limit: 20
+                total: 58
+                has_more: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      tags: [Orders]
+      operationId: createOrder
+      summary: Create an order
+      description: >
+        Creates an order and attempts payment against the customer's default
+        payment method. Returns `409` if any line item is out of stock.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreate'
+            example:
+              customer_id: cus_71Ba9
+              currency: USD
+              items:
+                - product_id: prod_8Kd2mQ
+                  quantity: 2
+                - product_id: prod_Qz7Lp0
+                  quantity: 1
+              shipping_address:
+                line1: 12 Rue de la Paix
+                city: Paris
+                postal_code: '75002'
+                country: FR
+      responses:
+        '201':
+          description: The created order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              example:
+                id: ord_9Lm4Pd
+                object: order
+                status: paid
+                customer_id: cus_71Ba9
+                items:
+                  - product_id: prod_8Kd2mQ
+                    quantity: 2
+                    unit_price: { amount: 1899, currency: USD }
+                  - product_id: prod_Qz7Lp0
+                    quantity: 1
+                    unit_price: { amount: 2499, currency: USD }
+                total: { amount: 6297, currency: USD }
+                created_at: '2026-08-10T12:05:41Z'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /orders/{orderId}:
+    parameters:
+      - $ref: '#/components/parameters/OrderId'
+    get:
+      tags: [Orders]
+      operationId: getOrder
+      summary: Retrieve an order
+      responses:
+        '200':
+          description: The requested order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              example:
+                id: ord_3F9aX2
+                object: order
+                status: fulfilled
+                customer_id: cus_71Ba9
+                items:
+                  - product_id: prod_8Kd2mQ
+                    quantity: 2
+                    unit_price: { amount: 1899, currency: USD }
+                total: { amount: 3798, currency: USD }
+                created_at: '2026-08-01T18:22:10Z'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /orders/{orderId}/refunds:
+    parameters:
+      - $ref: '#/components/parameters/OrderId'
+    post:
+      tags: [Refunds]
+      operationId: createRefund
+      summary: Refund an order
+      description: >
+        Issues a full or partial refund. Omit `amount` for a full refund. Cannot
+        exceed the order total minus prior refunds (`409`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundCreate'
+            example:
+              amount: { amount: 1899, currency: USD }
+              reason: requested_by_customer
+      responses:
+        '201':
+          description: The created refund.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Refund'
+              example:
+                id: re_2Xy8Qm
+                object: refund
+                order_id: ord_3F9aX2
+                amount: { amount: 1899, currency: USD }
+                reason: requested_by_customer
+                status: succeeded
+                created_at: '2026-08-10T12:10:00Z'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /customers/{customerId}:
+    parameters:
+      - $ref: '#/components/parameters/CustomerId'
+    get:
+      tags: [Customers]
+      operationId: getCustomer
+      summary: Retrieve a customer
+      responses:
+        '200':
+          description: The requested customer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+              example:
+                id: cus_71Ba9
+                object: customer
+                name: Camille Laurent
+                email: camille@example.fr
+                default_address:
+                  line1: 12 Rue de la Paix
+                  city: Paris
+                  postal_code: '75002'
+                  country: FR
+                created_at: '2025-11-02T08:00:00Z'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer access token from `POST /auth/token`.
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: Server-to-server key for backend integrations.
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: 1-based page number.
+      schema: { type: integer, minimum: 1, default: 1 }
+    Limit:
+      name: limit
+      in: query
+      description: Items per page (max 100).
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    ProductId:
+      name: productId
+      in: path
+      required: true
+      description: Product identifier, e.g. `prod_8Kd2mQ`.
+      schema: { type: string }
+    OrderId:
+      name: orderId
+      in: path
+      required: true
+      description: Order identifier, e.g. `ord_3F9aX2`.
+      schema: { type: string }
+    CustomerId:
+      name: customerId
+      in: path
+      required: true
+      description: Customer identifier, e.g. `cus_71Ba9`.
+      schema: { type: string }
+
+  responses:
+    BadRequest:
+      description: Malformed request (bad query params or body).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example:
+            error:
+              type: bad_request
+              message: 'Invalid value for query parameter "limit": must be <= 100.'
+    Unauthorized:
+      description: Missing or invalid credentials.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example:
+            error:
+              type: unauthorized
+              message: The access token is expired or invalid.
+    NotFound:
+      description: The resource does not exist.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example:
+            error:
+              type: not_found
+              message: No product exists with id "prod_missing".
+    Conflict:
+      description: The request conflicts with current state.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example:
+            error:
+              type: conflict
+              message: Insufficient inventory for product "prod_8Kd2mQ".
+    ValidationFailed:
+      description: The body failed validation.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ValidationError' }
+          example:
+            error:
+              type: validation_failed
+              message: 1 field is invalid.
+              fields:
+                - path: price.amount
+                  message: must be a positive integer
+
+  schemas:
+    Money:
+      type: object
+      required: [amount, currency]
+      properties:
+        amount:
+          type: integer
+          description: Amount in the smallest currency unit (e.g. cents).
+          example: 1899
+        currency:
+          type: string
+          description: ISO 4217 code.
+          example: USD
+    Address:
+      type: object
+      required: [line1, city, country]
+      properties:
+        line1: { type: string }
+        line2: { type: string }
+        city: { type: string }
+        postal_code: { type: string }
+        country: { type: string, description: ISO 3166-1 alpha-2. }
+    Product:
+      type: object
+      required: [id, name, sku, status, price]
+      properties:
+        id: { type: string, example: prod_8Kd2mQ }
+        object: { type: string, const: product }
+        name: { type: string }
+        sku: { type: string }
+        status: { type: string, enum: [active, draft, archived] }
+        price: { $ref: '#/components/schemas/Money' }
+        inventory: { type: integer, minimum: 0 }
+        tags:
+          type: array
+          items: { type: string }
+        created_at: { type: string, format: date-time }
+    ProductCreate:
+      type: object
+      required: [name, sku, price]
+      properties:
+        name: { type: string }
+        sku: { type: string }
+        status: { type: string, enum: [active, draft], default: draft }
+        price: { $ref: '#/components/schemas/Money' }
+        inventory: { type: integer, minimum: 0, default: 0 }
+        tags:
+          type: array
+          items: { type: string }
+    ProductUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string }
+        status: { type: string, enum: [active, draft, archived] }
+        price: { $ref: '#/components/schemas/Money' }
+        inventory: { type: integer, minimum: 0 }
+        tags:
+          type: array
+          items: { type: string }
+    OrderItem:
+      type: object
+      required: [product_id, quantity]
+      properties:
+        product_id: { type: string }
+        quantity: { type: integer, minimum: 1 }
+        unit_price: { $ref: '#/components/schemas/Money' }
+    Order:
+      type: object
+      required: [id, status, customer_id, items, total]
+      properties:
+        id: { type: string, example: ord_3F9aX2 }
+        object: { type: string, const: order }
+        status: { type: string, enum: [pending, paid, fulfilled, cancelled, refunded] }
+        customer_id: { type: string }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/OrderItem' }
+        total: { $ref: '#/components/schemas/Money' }
+        created_at: { type: string, format: date-time }
+    OrderCreate:
+      type: object
+      required: [customer_id, items]
+      properties:
+        customer_id: { type: string }
+        currency: { type: string, default: USD }
+        items:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/OrderItem' }
+        shipping_address: { $ref: '#/components/schemas/Address' }
+    Refund:
+      type: object
+      required: [id, order_id, amount, status]
+      properties:
+        id: { type: string, example: re_2Xy8Qm }
+        object: { type: string, const: refund }
+        order_id: { type: string }
+        amount: { $ref: '#/components/schemas/Money' }
+        reason: { type: string, enum: [requested_by_customer, duplicate, fraudulent] }
+        status: { type: string, enum: [pending, succeeded, failed] }
+        created_at: { type: string, format: date-time }
+    RefundCreate:
+      type: object
+      properties:
+        amount: { $ref: '#/components/schemas/Money' }
+        reason: { type: string, enum: [requested_by_customer, duplicate, fraudulent] }
+    Customer:
+      type: object
+      required: [id, name, email]
+      properties:
+        id: { type: string, example: cus_71Ba9 }
+        object: { type: string, const: customer }
+        name: { type: string }
+        email: { type: string, format: email }
+        default_address: { $ref: '#/components/schemas/Address' }
+        created_at: { type: string, format: date-time }
+    TokenRequest:
+      type: object
+      required: [grant_type, client_id, client_secret]
+      properties:
+        grant_type: { type: string, const: client_credentials }
+        client_id: { type: string }
+        client_secret: { type: string }
+        scope: { type: string }
+    TokenResponse:
+      type: object
+      required: [access_token, token_type, expires_in]
+      properties:
+        access_token: { type: string }
+        token_type: { type: string, const: Bearer }
+        expires_in: { type: integer, description: Lifetime in seconds. }
+        scope: { type: string }
+    Page:
+      type: object
+      required: [object, page, limit, total, has_more]
+      properties:
+        object: { type: string, const: list }
+        page: { type: integer }
+        limit: { type: integer }
+        total: { type: integer }
+        has_more: { type: boolean }
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [type, message]
+          properties:
+            type: { type: string }
+            message: { type: string }
+    ValidationError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [type, message]
+          properties:
+            type: { type: string, const: validation_failed }
+            message: { type: string }
+            fields:
+              type: array
+              items:
+                type: object
+                properties:
+                  path: { type: string }
+                  message: { type: string }
