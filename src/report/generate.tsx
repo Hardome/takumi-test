@@ -1,5 +1,5 @@
 import { render as renderPdf } from "takumi-pdf";
-import { googleFonts } from "takumi-js/helpers";
+import { googleFonts, fontFromUrl } from "takumi-js/helpers";
 import { mkdir, writeFile, readdir, rm } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve, basename } from "node:path";
@@ -24,7 +24,7 @@ async function loadFonts() {
       { name: "JetBrains Mono", weight: "400..700" },
     ]);
     console.log("✓ loaded Inter + JetBrains Mono");
-    return fonts;
+    return [fontFromUrl('https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf')];
   } catch (err) {
     console.warn(`! font fetch failed, using built-in font (${(err as Error).message})`);
     return undefined;
