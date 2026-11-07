@@ -14,8 +14,12 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 // with an arg it namespaces output under out/report/<spec-name>/.
 const specArg = process.argv[2];
 const specPath = specArg ? resolve(specArg) : join(root, "openapi.yaml");
-const specName = specArg ? basename(specPath).replace(/\.(ya?ml|json)$/i, "") : "";
-const outDir = specName ? join(root, "out", "report", specName) : join(root, "out", "report");
+const specName = specArg
+  ? basename(specPath).replace(/\.(ya?ml|json)$/i, "")
+  : "";
+const outDir = specName
+  ? join(root, "out", "report", specName)
+  : join(root, "out", "report");
 
 async function loadFonts() {
   try {
@@ -24,9 +28,15 @@ async function loadFonts() {
       { name: "JetBrains Mono", weight: "400..700" },
     ]);
     console.log("✓ loaded Inter + JetBrains Mono");
-    return [fontFromUrl('https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf')];
+    return [
+      fontFromUrl(
+        "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf",
+      ),
+    ];
   } catch (err) {
-    console.warn(`! font fetch failed, using built-in font (${(err as Error).message})`);
+    console.warn(
+      `! font fetch failed, using built-in font (${(err as Error).message})`,
+    );
     return undefined;
   }
 }
@@ -47,7 +57,9 @@ function Footer({ model }: { model: ReportModel }) {
     <div tw="flex w-full items-center justify-between font-[Inter] text-[10px] text-[#94a3b8] border-t border-[#e2e8f0] pt-2.5">
       <div tw="flex">{model.title} · Отчёт по API</div>
       <div tw="flex">
-        Страница <span className="pageNumber" />&nbsp;из&nbsp;<span className="totalPages" />
+        Страница <span className="pageNumber" />
+        &nbsp;из&nbsp;
+        <span className="totalPages" />
       </div>
     </div>
   );
@@ -97,8 +109,12 @@ async function main() {
   const pdfName = `${specName || "aperture"}.pdf`;
   await writeFile(join(outDir, pdfName), pdf);
   const rel = outDir.slice(root.length + 1).replace(/\\/g, "/");
-  console.log(`✓ ${pdfName} (${pageCount(pdf)} A4 pages, ${(pdf.length / 1024).toFixed(0)} KB)`);
-  console.log(`\nDone. ${model.services.length} services → ./${rel}/${pdfName} (A4 ${A4.width}×${A4.height}px @96dpi)`);
+  console.log(
+    `✓ ${pdfName} (${pageCount(pdf)} A4 pages, ${(pdf.length / 1024).toFixed(0)} KB)`,
+  );
+  console.log(
+    `\nDone. ${model.services.length} services → ./${rel}/${pdfName} (A4 ${A4.width}×${A4.height}px @96dpi)`,
+  );
 }
 
 main().catch((err) => {
