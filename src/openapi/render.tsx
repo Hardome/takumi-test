@@ -34,26 +34,39 @@ const card = `flex flex-col rounded-lg border ${GRID} overflow-hidden`;
 
 function MethodBadge({ method }: { method: string }) {
   return (
-    <div tw={`flex items-center justify-center rounded-md px-2.5 py-1 text-[15px] font-bold ${MONO} ${methodStyle[method] ?? "bg-[#f3f4f6] text-[#374151]"}`}>
+    <div
+      tw={`flex items-center justify-center rounded-md px-2.5 py-1 text-[15px] font-bold ${MONO} ${methodStyle[method] ?? "bg-[#f3f4f6] text-[#374151]"}`}
+    >
       {method}
     </div>
   );
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <div tw="flex text-[11px] font-bold tracking-[1.5px] text-[#6b7280] mt-5 mb-2">{children}</div>;
+  return (
+    <div tw="flex text-[11px] font-bold tracking-[1.5px] text-[#6b7280] mt-5 mb-2">
+      {children}
+    </div>
+  );
 }
 
 function CodeBlock({ label, value }: { label: string; value: unknown }) {
   const lines = prettyLines(value);
   return (
     <div tw={card} style={{ breakInside: "avoid" }}>
-      <div tw={`flex px-3 py-1.5 bg-[#f3f4f6] border-b ${GRID} text-[10px] font-semibold tracking-[0.5px] text-[#6b7280]`}>{label}</div>
+      <div
+        tw={`flex px-3 py-1.5 bg-[#f3f4f6] border-b ${GRID} text-[10px] font-semibold tracking-[0.5px] text-[#6b7280]`}
+      >
+        {label}
+      </div>
       <div tw="flex flex-col bg-[#f8fafc] px-4 py-3">
         {lines.map((line, i) => (
           <div key={i} tw="flex">
             {tokenizeLine(line).map((s, j) => (
-              <span key={j} tw={`${MONO} text-[12px] leading-[19px] whitespace-pre ${s.color}`}>
+              <span
+                key={j}
+                tw={`${MONO} text-[12px] leading-[19px] whitespace-pre ${s.color}`}
+              >
                 {s.text}
               </span>
             ))}
@@ -67,22 +80,57 @@ function CodeBlock({ label, value }: { label: string; value: unknown }) {
 function ParamTable({ params }: { params: Param[] }) {
   return (
     <div tw={`flex flex-col border-t border-l ${GRID}`}>
-      <div tw="flex bg-[#f5f5f5] text-[10px] font-semibold tracking-[0.5px] text-[#6b7280]" style={{ breakInside: "avoid" }}>
-        <div tw={`flex w-[150px] border-r border-b ${GRID} px-2.5 py-1.5`}>NAME</div>
-        <div tw={`flex w-[52px] border-r border-b ${GRID} px-2.5 py-1.5`}>IN</div>
-        <div tw={`flex w-[120px] border-r border-b ${GRID} px-2.5 py-1.5`}>TYPE</div>
-        <div tw={`flex w-[46px] border-r border-b ${GRID} px-2.5 py-1.5`}>REQ</div>
-        <div tw={`flex flex-1 border-r border-b ${GRID} px-2.5 py-1.5`}>DESCRIPTION</div>
+      <div
+        tw="flex bg-[#f5f5f5] text-[10px] font-semibold tracking-[0.5px] text-[#6b7280]"
+        style={{ breakInside: "avoid" }}
+      >
+        <div tw={`flex w-[150px] border-r border-b ${GRID} px-2.5 py-1.5`}>
+          NAME
+        </div>
+        <div tw={`flex w-[52px] border-r border-b ${GRID} px-2.5 py-1.5`}>
+          IN
+        </div>
+        <div tw={`flex w-[120px] border-r border-b ${GRID} px-2.5 py-1.5`}>
+          TYPE
+        </div>
+        <div tw={`flex w-[46px] border-r border-b ${GRID} px-2.5 py-1.5`}>
+          REQ
+        </div>
+        <div tw={`flex flex-1 border-r border-b ${GRID} px-2.5 py-1.5`}>
+          DESCRIPTION
+        </div>
       </div>
       {params.map((p, i) => (
         <div key={i} tw="flex items-stretch" style={{ breakInside: "avoid" }}>
-          <div tw={`flex w-[150px] border-r border-b ${GRID} px-2.5 py-1.5 break-all ${MONO} text-[12px] text-[#0f172a]`}>{p.name}</div>
-          <div tw={`flex w-[52px] border-r border-b ${GRID} px-2.5 py-1.5 text-[12px] text-[#6b7280]`}>{p.in}</div>
-          <div tw={`flex w-[120px] border-r border-b ${GRID} px-2.5 py-1.5 break-all ${MONO} text-[11px] text-[#4338ca]`}>{p.type}</div>
-          <div tw={`flex w-[46px] border-r border-b ${GRID} px-2.5 py-1.5 text-[12px]`}>
-            {p.required ? <span tw="flex text-[#b91c1c] font-semibold">yes</span> : <span tw="flex text-[#9ca3af]">no</span>}
+          <div
+            tw={`flex w-[150px] border-r border-b ${GRID} px-2.5 py-1.5 break-all ${MONO} text-[12px] text-[#0f172a]`}
+          >
+            {p.name}
           </div>
-          <div tw={`flex flex-1 border-r border-b ${GRID} px-2.5 py-1.5 text-[12px] leading-[18px] text-[#334155]`}>{p.description ?? ""}</div>
+          <div
+            tw={`flex w-[52px] border-r border-b ${GRID} px-2.5 py-1.5 text-[12px] text-[#6b7280]`}
+          >
+            {p.in}
+          </div>
+          <div
+            tw={`flex w-[120px] border-r border-b ${GRID} px-2.5 py-1.5 break-all ${MONO} text-[11px] text-[#4338ca]`}
+          >
+            {p.type}
+          </div>
+          <div
+            tw={`flex w-[46px] border-r border-b ${GRID} px-2.5 py-1.5 text-[12px]`}
+          >
+            {p.required ? (
+              <span tw="flex text-[#b91c1c] font-semibold">yes</span>
+            ) : (
+              <span tw="flex text-[#9ca3af]">no</span>
+            )}
+          </div>
+          <div
+            tw={`flex flex-1 border-r border-b ${GRID} px-2.5 py-1.5 text-[12px] leading-[18px] text-[#334155]`}
+          >
+            {p.description ?? ""}
+          </div>
         </div>
       ))}
     </div>
@@ -93,10 +141,16 @@ function ResponseRow({ resp }: { resp: ResponseModel }) {
   return (
     <div tw="flex flex-col mb-3" style={{ breakInside: "avoid" }}>
       <div tw="flex items-center gap-2 mb-1.5">
-        <div tw={`flex items-center justify-center rounded px-2 py-0.5 text-[13px] font-bold ${MONO} ${statusStyle(resp.status)}`}>{resp.status}</div>
+        <div
+          tw={`flex items-center justify-center rounded px-2 py-0.5 text-[13px] font-bold ${MONO} ${statusStyle(resp.status)}`}
+        >
+          {resp.status}
+        </div>
         <div tw="flex text-[13px] text-[#334155]">{resp.description}</div>
       </div>
-      {resp.example !== undefined && <CodeBlock label="RESPONSE BODY" value={resp.example} />}
+      {resp.example !== undefined && (
+        <CodeBlock label="RESPONSE BODY" value={resp.example} />
+      )}
     </div>
   );
 }
@@ -109,21 +163,39 @@ export function EndpointPage({ op }: { op: Operation }) {
       <div tw={`flex items-center justify-between border-b ${GRID} pb-3`}>
         <div tw="flex items-center gap-2.5">
           <MethodBadge method={op.method} />
-          <div tw={`flex ${MONO} text-[19px] text-[#111827] break-all`}>{op.path}</div>
+          <div tw={`flex ${MONO} text-[19px] text-[#111827] break-all`}>
+            {op.path}
+          </div>
         </div>
         <div tw="flex items-center gap-1.5">
-          <div tw={`flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${op.secured ? "bg-[#e0e7ff] text-[#3730a3]" : "bg-[#f3f4f6] text-[#6b7280]"}`}>
-            {op.secured ? "🔒 Bearer" : "Public"}
+          <div
+            tw={`flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${op.secured ? "bg-[#e0e7ff] text-[#3730a3]" : "bg-[#f3f4f6] text-[#6b7280]"}`}
+          >
+            {op.secured ? "Bearer" : "Public"}
           </div>
           {op.tags[0] && (
-            <div tw={`flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-[#f3f4f6] border ${GRID} text-[#6b7280]`}>{op.tags[0]}</div>
+            <div
+              tw={`flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-[#f3f4f6] border ${GRID} text-[#6b7280]`}
+            >
+              {op.tags[0]}
+            </div>
           )}
         </div>
       </div>
 
-      <div tw={`flex ${MONO} text-[10px] text-[#9ca3af] mt-1.5`}>operationId: {op.operationId}</div>
-      {op.summary && <div tw="flex text-[19px] font-bold text-[#111827] mt-2">{op.summary}</div>}
-      {op.description && <div tw="flex text-[13px] leading-[20px] text-[#4b5563] mt-1.5">{op.description}</div>}
+      <div tw={`flex ${MONO} text-[10px] text-[#9ca3af] mt-1.5`}>
+        operationId: {op.operationId}
+      </div>
+      {op.summary && (
+        <div tw="flex text-[19px] font-bold text-[#111827] mt-2">
+          {op.summary}
+        </div>
+      )}
+      {op.description && (
+        <div tw="flex text-[13px] leading-[20px] text-[#4b5563] mt-1.5">
+          {op.description}
+        </div>
+      )}
 
       {op.params.length > 0 && (
         <>
@@ -149,42 +221,73 @@ export function EndpointPage({ op }: { op: Operation }) {
   );
 }
 
-export function CoverPage({ spec, tagCounts }: { spec: Spec; tagCounts: [string, number][] }) {
+export function CoverPage({
+  spec,
+  tagCounts,
+}: {
+  spec: Spec;
+  tagCounts: [string, number][];
+}) {
   return (
     <div tw="flex flex-col w-full font-[Inter] text-[#111827]">
-      <div tw="flex text-[12px] font-semibold tracking-[3px] uppercase text-[#6366f1]">OpenAPI 3.1 · Reference</div>
+      <div tw="flex text-[12px] font-semibold tracking-[3px] uppercase text-[#6366f1]">
+        OpenAPI 3.1 · Reference
+      </div>
       <div tw="flex items-center gap-3 mt-2">
         <div tw="flex text-[44px] font-bold text-[#111827]">{spec.title}</div>
-        <div tw="flex rounded-full px-3 py-1 text-[15px] font-bold bg-[#e0e7ff] text-[#3730a3]">v{spec.version}</div>
+        <div tw="flex rounded-full px-3 py-1 text-[15px] font-bold bg-[#e0e7ff] text-[#3730a3]">
+          v{spec.version}
+        </div>
       </div>
-      <div tw="flex text-[15px] leading-[24px] text-[#4b5563] mt-3">{spec.description}</div>
+      <div tw="flex text-[15px] leading-[24px] text-[#4b5563] mt-3">
+        {spec.description}
+      </div>
 
-      <div tw="flex text-[11px] font-bold tracking-[1.5px] text-[#6b7280] mt-7 mb-2">SERVERS</div>
+      <div tw="flex text-[11px] font-bold tracking-[1.5px] text-[#6b7280] mt-7 mb-2">
+        SERVERS
+      </div>
       <div tw={card}>
         {spec.servers.map((s, i) => (
-          <div key={i} tw={`flex flex-col px-3 py-2 ${i > 0 ? `border-t ${GRID}` : ""}`}>
+          <div
+            key={i}
+            tw={`flex flex-col px-3 py-2 ${i > 0 ? `border-t ${GRID}` : ""}`}
+          >
             <div tw={`flex ${MONO} text-[14px] text-[#0369a1]`}>{s.url}</div>
-            <div tw="flex text-[12px] text-[#9ca3af] mt-0.5">{s.description ?? ""}</div>
+            <div tw="flex text-[12px] text-[#9ca3af] mt-0.5">
+              {s.description ?? ""}
+            </div>
           </div>
         ))}
       </div>
 
-      <div tw="flex text-[11px] font-bold tracking-[1.5px] text-[#6b7280] mt-6 mb-2">AUTHENTICATION</div>
+      <div tw="flex text-[11px] font-bold tracking-[1.5px] text-[#6b7280] mt-6 mb-2">
+        AUTHENTICATION
+      </div>
       <div tw={card}>
         {spec.securitySchemes.map((s, i) => (
-          <div key={i} tw={`flex items-center justify-between px-3 py-2 ${i > 0 ? `border-t ${GRID}` : ""}`}>
+          <div
+            key={i}
+            tw={`flex items-center justify-between px-3 py-2 ${i > 0 ? `border-t ${GRID}` : ""}`}
+          >
             <div tw={`flex ${MONO} text-[13px] text-[#111827]`}>{s.key}</div>
             <div tw="flex text-[13px] text-[#6b7280]">{s.detail}</div>
           </div>
         ))}
       </div>
 
-      <div tw="flex text-[11px] font-bold tracking-[1.5px] text-[#6b7280] mt-6 mb-2">ENDPOINTS BY TAG</div>
+      <div tw="flex text-[11px] font-bold tracking-[1.5px] text-[#6b7280] mt-6 mb-2">
+        ENDPOINTS BY TAG
+      </div>
       <div tw={card}>
         {tagCounts.map(([tag, count], i) => (
-          <div key={i} tw={`flex items-center justify-between px-3 py-2 ${i > 0 ? `border-t ${GRID}` : ""}`}>
+          <div
+            key={i}
+            tw={`flex items-center justify-between px-3 py-2 ${i > 0 ? `border-t ${GRID}` : ""}`}
+          >
             <div tw="flex text-[14px] text-[#111827]">{tag}</div>
-            <div tw={`flex rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[#f3f4f6] border ${GRID} text-[#6b7280]`}>
+            <div
+              tw={`flex rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[#f3f4f6] border ${GRID} text-[#6b7280]`}
+            >
               {count} {count === 1 ? "endpoint" : "endpoints"}
             </div>
           </div>
